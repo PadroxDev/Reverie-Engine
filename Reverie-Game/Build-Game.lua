@@ -1,4 +1,4 @@
-project "App"
+project "Reverie-Game"
    kind "ConsoleApp"
    language "C++"
    cppdialect "C++20"
@@ -10,14 +10,15 @@ project "App"
    includedirs
    {
       "Source",
+      "Source/Public",
+      "Source/Private",
 
-	  -- Include Core
-	  "../Core/Source"
+      "../Reverie-Core/Source/Public"
    }
 
    links
    {
-      "Core"
+      "Reverie-Core"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

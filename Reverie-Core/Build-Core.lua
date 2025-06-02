@@ -1,4 +1,4 @@
-project "Core"
+project "Reverie-Core"
    kind "StaticLib"
    language "C++"
    cppdialect "C++20"
@@ -9,15 +9,26 @@ project "Core"
 
    includedirs
    {
-      "Source"
+      "Source",
+      "Source/Private",
+      "Source/Public/ReverieEngine"
+   }
+
+   externalincludedirs
+   {
+      "Source",
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
    objdir ("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")
 
+   systemversion "latest"
+
    filter "system:windows"
        systemversion "latest"
-       defines { }
+       defines { "WIN32", "_WINDOWS" }
+       links { "d3d12", "dxgi", "d3dcompiler" }
+       linkoptions { "/IGNORE:4006" }
 
    filter "configurations:Debug"
        defines { "DEBUG" }
