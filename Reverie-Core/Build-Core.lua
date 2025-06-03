@@ -11,6 +11,7 @@ project "Reverie-Core"
    {
       "Source",
       "Source/Private",
+      "Source/Public",
       "Source/Public/ReverieEngine"
    }
 

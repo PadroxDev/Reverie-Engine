@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <Windows.h>
+#include "stdafx.h"
 
 struct IDXGIFactory1;
 struct IDXGIAdapter1;

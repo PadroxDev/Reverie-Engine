@@ -1,27 +1,18 @@
 ﻿#pragma once
-
-#include <wrl/client.h>
-
-using Microsoft::WRL::ComPtr;
-
-class ID3D12Device;
-struct IDXGIFactory1;
-struct IDXGIAdapter1;
+#include "ReverieGraphicsHandle.h"
 
 namespace ReverieEngine::Core
 {
-    class ReverieApp
+    class ReverieApp : public ReverieGraphicsHandle
     {
     public:
-        ReverieApp(float width, float height, const char* name);
-        ~ReverieApp();
+        ReverieApp(int width = 1280, int height = 720, std::wstring title = L"Reverie Application");
 
-        void Initialize();
-
-    private:
-        void LoadPipeline();
-
-        ComPtr<ID3D12Device> m_device;
+    protected:
+        virtual void OnInit() override;
+        virtual void OnUpdate() override;
+        virtual void OnRender() override;
+        virtual void OnDestroy() override;
     };
-   
+    
 }
