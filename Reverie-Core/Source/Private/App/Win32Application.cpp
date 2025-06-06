@@ -4,14 +4,17 @@
 
 #include "stdafx.h"
 #include "App/BaseClientApp.h"
-#include "Util/HResultUtil.h"
 #include "Util/DebugUtil.h"
 
 using namespace Microsoft::WRL;
-using namespace ReverieEngine::Util;
 
 namespace ReverieEngine::App
 {
+    void Win32Application::BindToClientApp(BaseClientApp* clientApp)
+    {
+        
+    }
+
     int Win32Application::Run(BaseClientApp* clientApp, HINSTANCE hInstance, int nCmdShow)
     {
         if(clientApp == nullptr)
@@ -19,7 +22,7 @@ namespace ReverieEngine::App
             OutputCtxDebug(L"Provided client application is null !");
             return EXIT_FAILURE; // Invalid client app
         }
-
+        
         try
         {
             WNDCLASSEX windowClass = {};
@@ -181,8 +184,9 @@ namespace ReverieEngine::App
 
     LRESULT Win32Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        BaseClientApp* clientApp = reinterpret_cast<BaseClientApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-
+        Win32Application* win32App = reinterpret_cast<Win32Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BaseClientApp* clientApp = (win32App != nullptr) ? win32App->GetClientApp() : nullptr;
+        
         switch(message)
         {
         case WM_CREATE:
@@ -193,6 +197,19 @@ namespace ReverieEngine::App
             }
             return 0;
 
+        case WM_SYSKEYDOWN:
+            // Handle ALT+ENTER:
+                if ((wParam == VK_RETURN) && (lParam & (1 << 29)))
+                {
+                    if (clientApp && clientApp->GetDeviceResources()->IsTearingSupported())
+                    {
+                        win32App->ToggleFullscreenWindow(clientApp->GetSwapchain());
+                        return 0;
+                    }
+                }
+            // Send all other WM_SYSKEYDOWN messages to the default WndProc.
+            break;
+            
         case WM_PAINT:
             if (clientApp != nullptr)
             {

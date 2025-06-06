@@ -1,14 +1,18 @@
 ﻿#include "App/BaseClientApp.h"
 
 namespace ReverieEngine::App {
-    BaseClientApp::BaseClientApp(int width, int height, std::wstring title) :
-        m_width(width),
-        m_height(height),
+    BaseClientApp::BaseClientApp(UINT width, UINT height, std::wstring title) :
         m_aspectRatio(0.f),
         m_windowBounds({}),
+        m_adapterIDoverride(UINT_MAX),
         m_windowTitle(std::move(title))
     {
-        m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+        UpdateForSizeChange(width, height);
+    }
+
+    void BaseClientApp::BindToWin32App(Win32Application* app)
+    {
+        
     }
 
     void BaseClientApp::UpdateForSizeChange(UINT clientWidth, UINT clientHeight)
@@ -21,5 +25,10 @@ namespace ReverieEngine::App {
     void BaseClientApp::SetWindowBounds(const RECT& newRect)
     {
         m_windowBounds = newRect;
+    }
+
+    void BaseClientApp::SetWindowTitle(const std::wstring& title)
+    {
+        SetWindowText()
     }
 }

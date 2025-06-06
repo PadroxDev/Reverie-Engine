@@ -1,15 +1,18 @@
 ﻿#pragma once
 
-#include <string>
-
 #include "stdafx.h"
+
+#include <string>
+#include <wrl/client.h>
+
+using Microsoft::WRL::ComPtr;
 
 namespace ReverieEngine::App
 {
     class BaseClientApp
     {
     public:
-        BaseClientApp(int width, int height, std::wstring title);
+        BaseClientApp(UINT width, UINT height, std::wstring title);
         virtual ~BaseClientApp() = default;
 
         virtual void OnInit() = 0;
@@ -23,24 +26,35 @@ namespace ReverieEngine::App
 
     #pragma region Accessors
         
-        int GetWidth() const { return m_width; }
-        int GetHeight() const { return m_height; }
+        UINT GetWidth() const { return m_width; }
+        UINT GetHeight() const { return m_height; }
         const wchar_t* GetWindowTitle() const { return m_windowTitle.c_str(); }
         RECT GetWindowBounds() const { return m_windowBounds; }
-
+        virtual IDXGISwapChain* GetSwapchain() const { return nullptr; }
+        DX::DeviceResources* GetDeviceResources() const { return m_deviceResources.get(); }
+        
     #pragma endregion
 
+        // Bidirectional binding to Win32Application that powers this client app.
+        void BindToWin32App(Win32Application* app);
+        
         void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
         void SetWindowBounds(const RECT& newRect);
         
     protected:
-        // TODO: void SetWindowTitle(const std::wstring& title);
+        void SetWindowTitle(const std::wstring& title);
+
+        ComPtr<Win32Application> m_win32App; 
         
         UINT m_width;
         UINT m_height;
         float m_aspectRatio;
+
         RECT m_windowBounds;
-    
+
+        UINT m_adapterIDoverride;
+        std::unique_ptr<DX::DeviceResources> m_deviceResources;
+        
     private:
         std::wstring m_windowTitle;
         

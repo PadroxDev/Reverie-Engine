@@ -32,3 +32,11 @@
 #include <string>
 #include <vector>
 #include <memory>
+
+#ifdef _DEBUG
+#include <dxgidebug.h>
+#endif
+
+#include "d3dx12.h"
+#include "DeviceResources.h"
+#include "Util/D3D12Util.h"
