@@ -9,12 +9,11 @@ using Microsoft::WRL::ComPtr;
 
 namespace ReverieEngine::App
 {
+    class Win32Application;
+    
     class BaseClientApp
     {
     public:
-        BaseClientApp(UINT width, UINT height, std::wstring title);
-        virtual ~BaseClientApp() = default;
-
         virtual void OnInit() = 0;
         virtual void OnUpdate() = 0;
         virtual void OnRender() = 0;
@@ -42,9 +41,12 @@ namespace ReverieEngine::App
         void SetWindowBounds(const RECT& newRect);
         
     protected:
-        void SetWindowTitle(const std::wstring& title);
+        BaseClientApp(UINT width, UINT height, std::wstring title);
+        virtual ~BaseClientApp() = default;
+        
+        void SetWindowTitle(const std::wstring& title) const;
 
-        ComPtr<Win32Application> m_win32App; 
+        Win32Application* m_win32App; 
         
         UINT m_width;
         UINT m_height;

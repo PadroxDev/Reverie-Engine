@@ -6,9 +6,7 @@
 
 #include "stdafx.h"
 #include "Util/D3D12Util.h"
-#include "Util/HResultUtil.h"
 
-using namespace ReverieEngine::Util;
 using Microsoft::WRL::ComPtr;
 
 namespace ReverieEngine::Core

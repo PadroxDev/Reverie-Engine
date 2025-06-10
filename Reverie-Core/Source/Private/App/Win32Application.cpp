@@ -10,16 +10,11 @@ using namespace Microsoft::WRL;
 
 namespace ReverieEngine::App
 {
-    void Win32Application::BindToClientApp(BaseClientApp* clientApp)
+    int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
     {
-        
-    }
-
-    int Win32Application::Run(BaseClientApp* clientApp, HINSTANCE hInstance, int nCmdShow)
-    {
-        if(clientApp == nullptr)
+        if(m_clientApp == nullptr)
         {
-            OutputCtxDebug(L"Provided client application is null !");
+            OutputCtxDebug(L"Client application is null !");
             return EXIT_FAILURE; // Invalid client app
         }
         
@@ -34,12 +29,12 @@ namespace ReverieEngine::App
             windowClass.lpszClassName = L"Reverie Window Class";
             RegisterClassEx(&windowClass);
 
-            RECT windowRect = { 0, 0, static_cast<LONG>(clientApp->GetWidth()), static_cast<LONG>(clientApp->GetHeight()) };
+            RECT windowRect = { 0, 0, static_cast<LONG>(m_clientApp->GetWidth()), static_cast<LONG>(m_clientApp->GetHeight()) };
             AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
             
             m_hwnd = CreateWindow(
                 windowClass.lpszClassName,
-                clientApp->GetWindowTitle(),
+                m_clientApp->GetWindowTitle(),
                 m_WindowStyle,
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
@@ -51,7 +46,7 @@ namespace ReverieEngine::App
                 this
             );
 
-            clientApp->OnInit();
+            m_clientApp->OnInit();
         
             ShowWindow(m_hwnd, nCmdShow);
 
@@ -67,7 +62,7 @@ namespace ReverieEngine::App
                 }
             }
 
-            clientApp->OnDestroy();
+            m_clientApp->OnDestroy();
 
             return static_cast<char>(msg.wParam);
         }
@@ -77,7 +72,7 @@ namespace ReverieEngine::App
             OutputDebugStringA(e.what());
             OutputDebugString(L"/nTerminating./n");
 
-            clientApp->OnDestroy();
+            m_clientApp->OnDestroy();
             return EXIT_FAILURE;
         }
     }
@@ -160,7 +155,7 @@ namespace ReverieEngine::App
         m_bFullscreen ^= true;
     }
 
-    void Win32Application::SetWindowZorderToTopMost(BOOL bSetToTopMost)
+    void Win32Application::SetWindowZOrderToTopMost(BOOL bSetToTopMost)
     {
         RECT windowRect;
         GetWindowRect(m_hwnd, &windowRect);
@@ -179,8 +174,20 @@ namespace ReverieEngine::App
     Win32Application::Win32Application() :
         m_hwnd(nullptr),
         m_bFullscreen(FALSE),
-        m_windowRect({})
+        m_windowRect({}),
+        m_clientApp(nullptr)
     { }
+
+    void Win32Application::BindToClientApp(BaseClientApp* clientApp)
+    {
+        if(m_clientApp != nullptr)
+        {
+            OutputCtxDebug(L"Win32Application is already bound to a BaseClientApp instance!");
+            return;
+        }
+        
+        m_clientApp = clientApp;
+    }
 
     LRESULT Win32Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {

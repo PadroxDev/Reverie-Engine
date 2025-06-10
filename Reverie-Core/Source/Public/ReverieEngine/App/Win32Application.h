@@ -11,20 +11,20 @@ namespace ReverieEngine::App
     class Win32Application
     {
     public:
+        Win32Application();
+        virtual ~Win32Application() = default;
+
         void BindToClientApp(BaseClientApp* clientApp);
-        int Run(BaseClientApp* clientApp, HINSTANCE hInstance, int nCmdShow);
+        int Run(HINSTANCE hInstance, int nCmdShow);
         
         void ToggleFullscreenWindow(IDXGISwapChain* pOutput = nullptr);
-        void SetWindowZorderToTopMost(BOOL setToTopMost);
+        void SetWindowZOrderToTopMost(BOOL setToTopMost);
 
         BaseClientApp* GetClientApp() const { return m_clientApp; }
         HWND GetHwnd() const { return m_hwnd; }
         BOOL IsFullscreen() const { return m_bFullscreen; }
 
     protected:
-        Win32Application();
-        virtual ~Win32Application() = default;
-        
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         
     private:
@@ -34,7 +34,7 @@ namespace ReverieEngine::App
 
         BaseClientApp* m_clientApp;
         
-        constexpr UINT m_WindowStyle = WS_OVERLAPPEDWINDOW;
+        const UINT m_WindowStyle = WS_OVERLAPPEDWINDOW;
     };
 
 }

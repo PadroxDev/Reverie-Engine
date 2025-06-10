@@ -1,9 +1,6 @@
 ﻿#include "Core/ReverieWindowHandle.h"
 
 #include "stdafx.h"
-#include "Util/HResultUtil.h"
-
-using namespace ReverieEngine::Util;
 
 namespace ReverieEngine::Core
 {

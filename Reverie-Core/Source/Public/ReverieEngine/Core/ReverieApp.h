@@ -1,18 +1,22 @@
 ﻿#pragma once
-#include "ReverieGraphicsHandle.h"
+#include "App/BaseClientApp.h"
 
 namespace ReverieEngine::Core
 {
-    class ReverieApp : public ReverieGraphicsHandle
+    class ReverieApp : public App::BaseClientApp
     {
     public:
-        ReverieApp(int width = 1280, int height = 720, std::wstring title = L"Reverie Application");
+        static std::unique_ptr<ReverieApp> CreateWithWin32(UINT width, UINT height, const std::wstring& title,
+            std::unique_ptr<App::Win32Application>* outWin32App);
 
-    protected:
-        virtual void OnInit() override;
-        virtual void OnUpdate() override;
-        virtual void OnRender() override;
-        virtual void OnDestroy() override;
+        // You should avoid using this constructor directly, use a factory method like CreateWithWin32 instead.
+        ReverieApp(UINT width, UINT height, const std::wstring& title) : BaseClientApp(width, height, title)
+        { }
+        
+        void OnInit() override;
+        void OnUpdate() override;
+        void OnRender() override;
+        void OnDestroy() override;
     };
     
 }

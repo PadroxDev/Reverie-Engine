@@ -1,6 +1,20 @@
 ﻿#include "App/BaseClientApp.h"
 
+#include "App/Win32Application.h"
+#include "Util/DebugUtil.h"
+
 namespace ReverieEngine::App {
+    void BaseClientApp::BindToWin32App(Win32Application* app)
+    {
+        if(m_win32App != nullptr)
+        {
+            OutputCtxDebug(L"BaseClientApp is already bound to a Win32Application instance!");
+            return;
+        }
+        
+        m_win32App = app;
+    }
+
     BaseClientApp::BaseClientApp(UINT width, UINT height, std::wstring title) :
         m_aspectRatio(0.f),
         m_windowBounds({}),
@@ -9,12 +23,7 @@ namespace ReverieEngine::App {
     {
         UpdateForSizeChange(width, height);
     }
-
-    void BaseClientApp::BindToWin32App(Win32Application* app)
-    {
-        
-    }
-
+    
     void BaseClientApp::UpdateForSizeChange(UINT clientWidth, UINT clientHeight)
     {
         m_width = clientWidth;
@@ -27,8 +36,8 @@ namespace ReverieEngine::App {
         m_windowBounds = newRect;
     }
 
-    void BaseClientApp::SetWindowTitle(const std::wstring& title)
+    void BaseClientApp::SetWindowTitle(const std::wstring& title) const
     {
-        SetWindowText()
+        SetWindowText(m_win32App->GetHwnd(), title.c_str());
     }
 }

@@ -21,7 +21,7 @@ namespace
 };
 
 // Constructor for DeviceResources.
-DeviceResources::DeviceResources(DXGI_FORMAT backBufferFormat, DXGI_FORMAT depthBufferFormat, UINT backBufferCount, D3D_FEATURE_LEVEL minFeatureLevel, UINT flags, UINT adapterIDoverride) :
+DeviceResources::DeviceResources(ReverieEngine::App::Win32Application* win32App, DXGI_FORMAT backBufferFormat, DXGI_FORMAT depthBufferFormat, UINT backBufferCount, D3D_FEATURE_LEVEL minFeatureLevel, UINT flags, UINT adapterIDoverride) :
     m_backBufferIndex(0),
     m_fenceValues{},
     m_rtvDescriptorSize(0),
@@ -38,7 +38,8 @@ DeviceResources::DeviceResources(DXGI_FORMAT backBufferFormat, DXGI_FORMAT depth
     m_deviceNotify(nullptr),
     m_isWindowVisible(true),
     m_adapterIDoverride(adapterIDoverride),
-    m_adapterID(UINT_MAX)
+    m_adapterID(UINT_MAX),
+    m_win32App(win32App)
 {
     if (backBufferCount > MAX_BACK_BUFFER_COUNT)
     {
@@ -223,7 +224,7 @@ void DeviceResources::CreateDeviceResources()
 }
 
 // These resources need to be recreated every time the window size is changed.
-void DeviceResources::CreateWindowSizeDependentResources(ReverieEngine::App::Win32Application* win32App) 
+void DeviceResources::CreateWindowSizeDependentResources() 
 {
     if (!m_window)
     {
@@ -300,17 +301,17 @@ void DeviceResources::CreateWindowSizeDependentResources(ReverieEngine::App::Win
         
         // DXGI does not allow creating a swapchain targeting a window which has fullscreen styles(no border + topmost).
         // Temporarily remove the topmost property for creating the swapchain.
-        bool prevIsFullscreen = win32App->IsFullscreen();
+        bool prevIsFullscreen = m_win32App->IsFullscreen();
         if (prevIsFullscreen)
         {
-            win32App->SetWindowZorderToTopMost(false);
+            m_win32App->SetWindowZOrderToTopMost(false);
         }
         
         ThrowIfFailed(m_dxgiFactory->CreateSwapChainForHwnd(m_commandQueue.Get(), m_window, &swapChainDesc, &fsSwapChainDesc, nullptr, &swapChain));
         
         if (prevIsFullscreen)
         {
-            win32App->SetWindowZorderToTopMost(true);
+            m_win32App->SetWindowZOrderToTopMost(true);
         }
 
         ThrowIfFailed(swapChain.As(&m_swapChain));
@@ -405,7 +406,7 @@ void DeviceResources::SetWindow(HWND window, int width, int height)
 
 // This method is called when the Win32 window changes size.
 // It returns true if window size change was applied.
-bool DeviceResources::WindowSizeChanged(ReverieEngine::App::Win32Application* win32App, int width, int height, bool minimized)
+bool DeviceResources::WindowSizeChanged(int width, int height, bool minimized)
 {
     m_isWindowVisible = !minimized;
 
@@ -427,7 +428,7 @@ bool DeviceResources::WindowSizeChanged(ReverieEngine::App::Win32Application* wi
     }
 
     m_outputSize = newRc;
-    CreateWindowSizeDependentResources(win32App);
+    CreateWindowSizeDependentResources();
     return true;
 }
 
