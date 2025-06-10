@@ -11,8 +11,7 @@ project "Reverie-Core"
    {
       "Source",
       "Source/Private",
-      "Source/Public",
-      "Source/Public/ReverieEngine"
+      "Source/Public"
    }
 
    externalincludedirs
@@ -28,7 +27,7 @@ project "Reverie-Core"
    filter "system:windows"
        systemversion "latest"
        defines { "WIN32", "_WINDOWS" }
-       links { "d3d12", "dxgi", "d3dcompiler" }
+       links { "d3d12", "dxgi", "d3dcompiler", "dxguid" }
        linkoptions { "/IGNORE:4006" }
 
    filter "configurations:Debug"

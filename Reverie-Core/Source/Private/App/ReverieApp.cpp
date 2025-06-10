@@ -1,8 +1,8 @@
-﻿#include "Core/ReverieApp.h"
+﻿#include "ReverieEngine/App/ReverieApp.h"
 
-#include "App/Win32Application.h"
+#include "ReverieEngine/App/Win32Application.h"
 
-using namespace ReverieEngine::Core;
+using namespace ReverieEngine::App;
 
 std::unique_ptr<ReverieApp> ReverieApp::CreateWithWin32(UINT width, UINT height, const std::wstring& title,
     std::unique_ptr<App::Win32Application>* outWin32App)

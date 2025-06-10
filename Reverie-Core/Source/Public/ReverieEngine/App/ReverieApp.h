@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "App/BaseClientApp.h"
+#include "ReverieEngine/App/BaseClientApp.h"
 
-namespace ReverieEngine::Core
+namespace ReverieEngine::App
 {
     class ReverieApp : public App::BaseClientApp
     {

@@ -1,7 +1,7 @@
-﻿#include "App/DeviceResources.h"
+﻿#include "ReverieEngine/App/DeviceResources.h"
 
-#include "App/Win32Application.h"
-#include "Util/DebugUtil.h"
+#include "ReverieEngine/App/Win32Application.h"
+#include "ReverieEngine/Util/DebugUtil.h"
 
 using namespace DX;
 using namespace std;
