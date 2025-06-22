@@ -20,7 +20,8 @@ BaseClientApp::BaseClientApp(UINT width, UINT height, std::wstring title) :
     m_aspectRatio(0.f),
     m_windowBounds({}),
     m_adapterIDoverride(UINT_MAX),
-    m_windowTitle(std::move(title))
+    m_windowTitle(std::move(title)),
+    m_win32App(nullptr)
 {
     UpdateForSizeChange(width, height);
 }

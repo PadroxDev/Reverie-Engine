@@ -11,7 +11,7 @@ namespace ReverieEngine::App
 {
     class Win32Application;
     
-    class BaseClientApp
+    class BaseClientApp : public DX::IDeviceNotify
     {
     public:
         virtual void OnInit() = 0;

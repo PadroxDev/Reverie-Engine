@@ -31,13 +31,23 @@ int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
 
         RECT windowRect = { 0, 0, static_cast<LONG>(m_clientApp->GetWidth()), static_cast<LONG>(m_clientApp->GetHeight()) };
         AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+
+        // Calculate the position to center the window on the screen.
+        const int windowWidth = windowRect.right - windowRect.left;
+        const int windowHeight = windowRect.bottom - windowRect.top;
+
+        const int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+        const int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+        
+        const int x = (screenWidth - windowWidth) / 2;
+        const int y = (screenHeight - windowHeight) / 2;
         
         m_hwnd = CreateWindow(
             windowClass.lpszClassName,
             m_clientApp->GetWindowTitle(),
             m_WindowStyle,
-            CW_USEDEFAULT,
-            CW_USEDEFAULT,
+            x,
+            y,
             windowRect.right - windowRect.left,
             windowRect.bottom - windowRect.top,
             nullptr,
@@ -49,7 +59,7 @@ int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
         m_clientApp->OnInit();
     
         ShowWindow(m_hwnd, nCmdShow);
-
+        
         // Main loop
         MSG msg = {};
         while(msg.message != WM_QUIT)
