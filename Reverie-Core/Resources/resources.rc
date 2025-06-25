@@ -1,0 +1,2 @@
+﻿#include "resources.h"
+IDI_EDITOR ICON "Icons/ReverieEngine_Icon.ico"

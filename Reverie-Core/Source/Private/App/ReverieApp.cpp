@@ -73,3 +73,13 @@ void ReverieApp::OnRender()
 
 void ReverieApp::OnDestroy()
 { }
+
+void ReverieApp::OnWindowSizeChanged(int width, int height, bool minimized)
+{
+    if(!m_deviceResources->WindowSizeChanged(width, height, minimized))
+    {
+        return;
+    }
+
+    UpdateForSizeChange(width, height);
+}

@@ -5,14 +5,14 @@ project "Reverie-Game"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "Source/**.h", "Source/**.cpp" }
+   files {
+     "Source/**.h",
+     "Source/**.cpp",
+     "../Reverie-Core/Resources/**.rc"
+    }
 
    includedirs
    {
-      "Source",
-      "Source/Public",
-      "Source/Private",
-
       "../Reverie-Core/Source/Public"
    }
 

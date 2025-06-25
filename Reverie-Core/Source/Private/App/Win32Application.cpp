@@ -2,6 +2,7 @@
 
 #include <wrl/client.h>
 
+#include "resources.h"
 #include "stdafx.h"
 #include "ReverieEngine/App/BaseClientApp.h"
 #include "ReverieEngine/Util/DebugUtil.h"
@@ -25,6 +26,14 @@ int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
         windowClass.style = CS_HREDRAW | CS_VREDRAW;
         windowClass.lpfnWndProc = WindowProc;
         windowClass.hInstance = hInstance;
+     
+        HICON icon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_EDITOR));
+        if (icon == NULL) {
+            MessageBox(nullptr, L"TON ICONE C'EST DE LA MERDE !", L"ICONE DE CON", MB_OK | MB_ICONERROR);
+        }
+        windowClass.hIcon = icon;
+        windowClass.hIconSm = icon;
+        
         windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
         windowClass.lpszClassName = L"Reverie Window Class";
         RegisterClassEx(&windowClass);
@@ -235,6 +244,43 @@ LRESULT Win32Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
         }
         return 0;
 
+    case WM_SIZE:
+        if(clientApp != nullptr)
+        {
+            RECT windowRect = {};
+            GetWindowRect(hWnd, &windowRect);
+            clientApp->SetWindowBounds(windowRect);
+
+            RECT clientRect = {};
+            GetClientRect(hWnd, &clientRect);
+            clientApp->OnWindowSizeChanged(
+                clientRect.right - clientRect.left,
+                clientRect.bottom - clientRect.top,
+                wParam == SIZE_MINIMIZED
+            );
+        }
+        return 0;
+
+    case WM_MOVE:
+        if(clientApp != nullptr)
+        {
+            RECT windowRect = {};
+            GetWindowRect(hWnd, &windowRect);
+            clientApp->SetWindowBounds(windowRect);
+
+            int xPos = (int)(short)LOWORD(lParam);
+            int yPos = (int)(short)HIWORD(lParam);
+            clientApp->OnWindowMoved(xPos, yPos);
+        }
+        return 0;
+
+    case WM_DISPLAYCHANGE:
+        if(clientApp != nullptr)
+        {
+            clientApp->OnDisplayChanged();
+        }
+        return 0;
+        
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;

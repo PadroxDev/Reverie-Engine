@@ -21,7 +21,8 @@ namespace ReverieEngine::App
         void OnUpdate() override;
         void OnRender() override;
         void OnDestroy() override;
-
+        void OnWindowSizeChanged(int width, int height, bool minimized) override;
+        
     private:
         static constexpr UINT k_FrameCount = 3; // Buffering: triple buffering
 

@@ -1,3 +1,7 @@
+if premake.vstudio and premake.vstudio.fileExtension then
+    premake.vstudio.fileExtension[".rc"] = "ResourceCompile"
+end
+
 workspace "Reverie Engine"
    architecture "x64"
    configurations { "Debug", "Release", "Dist" }
