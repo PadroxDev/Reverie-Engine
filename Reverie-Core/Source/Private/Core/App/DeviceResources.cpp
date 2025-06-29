@@ -1,9 +1,9 @@
-﻿#include "ReverieEngine/App/DeviceResources.h"
+﻿#include "ReverieEngine/Core/App/DeviceResources.h"
 
-#include "ReverieEngine/App/Win32Application.h"
+#include "ReverieEngine/Core/App/Win32Application.h"
 #include "ReverieEngine/Util/DebugUtil.h"
 
-using namespace DX;
+using namespace ReverieEngine::Core::App;
 using namespace std;
 
 namespace
@@ -21,32 +21,33 @@ namespace
 };
 
 // Constructor for DeviceResources.
-DeviceResources::DeviceResources(ReverieEngine::App::Win32Application* win32App, DXGI_FORMAT backBufferFormat, DXGI_FORMAT depthBufferFormat, UINT backBufferCount, D3D_FEATURE_LEVEL minFeatureLevel, UINT flags, UINT adapterIDoverride) :
+DeviceResources::DeviceResources(Win32Application* win32App, const DeviceConfig& config) :
+    m_win32App(win32App),
     m_backBufferIndex(0),
     m_fenceValues{},
     m_rtvDescriptorSize(0),
     m_screenViewport{},
     m_scissorRect{},
-    m_backBufferFormat(backBufferFormat),
-    m_depthBufferFormat(depthBufferFormat),
-    m_backBufferCount(backBufferCount),
-    m_d3dMinFeatureLevel(minFeatureLevel),
+    m_vsyncEnabled(config.vsyncEnabled),
+    m_backBufferFormat(config.backBufferFormat),
+    m_depthBufferFormat(config.depthBufferFormat),
+    m_backBufferCount(config.backBufferCount),
+    m_d3dMinFeatureLevel(config.minFeatureLevel),
     m_window(nullptr),
     m_d3dFeatureLevel(D3D_FEATURE_LEVEL_11_0),
     m_outputSize{ 0, 0, 1, 1 },
-    m_options(flags),
+    m_options(config.flags),
     m_deviceNotify(nullptr),
     m_isWindowVisible(true),
-    m_adapterIDoverride(adapterIDoverride),
-    m_adapterID(UINT_MAX),
-    m_win32App(win32App)
+    m_adapterIDoverride(config.adapterIDoverride),
+    m_adapterID(UINT_MAX)
 {
-    if (backBufferCount > MAX_BACK_BUFFER_COUNT)
+    if (config.backBufferCount > MAX_BACK_BUFFER_COUNT)
     {
         throw out_of_range("backBufferCount too large");
     }
 
-    if (minFeatureLevel < D3D_FEATURE_LEVEL_11_0)
+    if (config.minFeatureLevel < D3D_FEATURE_LEVEL_11_0)
     {
         throw out_of_range("minFeatureLevel too low");
     }
@@ -110,9 +111,10 @@ void DeviceResources::InitializeDXGIAdapter()
         if (SUCCEEDED(hr))
         {
             hr = factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
+            m_bTearingSupported = SUCCEEDED(hr) && allowTearing;
         }
 
-        if (FAILED(hr) || !allowTearing)
+        if (!m_bTearingSupported)
         {
             OutputCtxDebug("WARNING: Variable refresh rate displays are not supported.\n");
             if (m_options & c_RequireTearingSupport)
@@ -301,7 +303,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
         
         // DXGI does not allow creating a swapchain targeting a window which has fullscreen styles(no border + topmost).
         // Temporarily remove the topmost property for creating the swapchain.
-        bool prevIsFullscreen = m_win32App->IsFullscreen();
+        bool prevIsFullscreen = m_win32App->IsBorderlessFullscreen();
         if (prevIsFullscreen)
         {
             m_win32App->SetWindowZOrderToTopMost(false);
@@ -395,7 +397,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
 }
 
 // This method is called when the Win32 window is created (or re-created).
-void DeviceResources::SetWindow(HWND window, int width, int height)
+void DeviceResources::SetWindow(const HWND window, const int width, const int height)
 {
     m_window = window;
 
@@ -406,11 +408,11 @@ void DeviceResources::SetWindow(HWND window, int width, int height)
 
 // This method is called when the Win32 window changes size.
 // It returns true if window size change was applied.
-bool DeviceResources::WindowSizeChanged(int width, int height, bool minimized)
+bool DeviceResources::WindowSizeChanged(const int width, const int height, const bool bMinimized)
 {
-    m_isWindowVisible = !minimized;
+    m_isWindowVisible = !bMinimized;
 
-    if (minimized || width == 0 || height == 0)
+    if (bMinimized || width == 0 || height == 0)
     {
         return false;
     }
@@ -477,7 +479,7 @@ void DeviceResources::HandleDeviceLost()
 }
 
 // Prepare the command list and render target for rendering.
-void DeviceResources::Prepare(D3D12_RESOURCE_STATES beforeState)
+void DeviceResources::Prepare(const D3D12_RESOURCE_STATES beforeState)
 {
     // Reset command list and allocator.
     ThrowIfFailed(m_commandAllocators[m_backBufferIndex]->Reset());
@@ -492,31 +494,31 @@ void DeviceResources::Prepare(D3D12_RESOURCE_STATES beforeState)
 }
 
 // Present the contents of the swap chain to the screen.
-void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
+void DeviceResources::Present(const D3D12_RESOURCE_STATES beforeState)
 {
     if (beforeState != D3D12_RESOURCE_STATE_PRESENT)
     {
         // Transition the render target to the state that allows it to be presented to the display.
-        D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_backBufferIndex].Get(), beforeState, D3D12_RESOURCE_STATE_PRESENT);
+        D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            m_renderTargets[m_backBufferIndex].Get(),
+            beforeState,
+            D3D12_RESOURCE_STATE_PRESENT
+        );
         m_commandList->ResourceBarrier(1, &barrier);
     }
 
     ExecuteCommandList();
 
-    HRESULT hr;
-    if (m_options & c_AllowTearing)
+    UINT syncInterval = 1;
+    UINT presentFlags = 0;
+
+    if(m_vsyncEnabled == false && m_bTearingSupported)
     {
-        // Recommended to always use tearing if supported when using a sync interval of 0.
-        // Note this will fail if in true 'fullscreen' mode.
-        hr = m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+        syncInterval = 0;
+        presentFlags = DXGI_PRESENT_ALLOW_TEARING;
     }
-    else
-    {
-        // The first argument instructs DXGI to block until VSync, putting the application
-        // to sleep until the next VSync. This ensures we don't waste any cycles rendering
-        // frames that will never be displayed to the screen.
-        hr = m_swapChain->Present(1, 0);
-    }
+
+    HRESULT hr = m_swapChain->Present(syncInterval, presentFlags);
 
     // If the device was reset we must completely reinitialize the renderer.
     if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
@@ -531,7 +533,6 @@ void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
     else
     {
         ThrowIfFailed(hr);
-
         MoveToNextFrame();
     }
 }

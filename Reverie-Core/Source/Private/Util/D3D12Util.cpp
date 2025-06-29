@@ -4,6 +4,8 @@
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
+#include "ReverieEngine/Util/DebugUtil.h"
+
 using Microsoft::WRL::ComPtr;
 
 // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.

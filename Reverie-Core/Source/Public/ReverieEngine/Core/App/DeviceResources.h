@@ -20,17 +20,15 @@
 #include <wrl/client.h>
 #include <Unknwn.h>
 
-#include "stdafx.h"
+#include "ReverieEngine/Core/stdafx.h"
 
 using namespace Microsoft::WRL;
 
-namespace ReverieEngine::App
+namespace ReverieEngine::Core::App
 {
+    // Forward declarations
     class Win32Application;
-}
-
-namespace DX
-{
+    
     // Provides an interface for an application that owns DeviceResources to be notified of the device being lost or created.
     interface IDeviceNotify
     {
@@ -38,6 +36,17 @@ namespace DX
         virtual void OnDeviceRestored() = 0;
     };
 
+    struct DeviceConfig
+    {
+        bool vsyncEnabled = true;
+        DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+        DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT;
+        UINT backBufferCount = 2;
+        D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+        UINT flags = 0; // Use DX::DeviceResources::c_AllowTearing, etc.
+        UINT adapterIDoverride = UINT_MAX;
+    };
+    
     // Controls all the DirectX device resources.
     class DeviceResources
     {
@@ -47,32 +56,28 @@ namespace DX
         static const unsigned int c_RequireTearingSupport = 0x2;
 
         DeviceResources(
-            ReverieEngine::App::Win32Application* win32App,
-            DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM,
-            DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT,
-            UINT backBufferCount = 2,
-            D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_11_0,
-            UINT flags = 0,
-            UINT adapterIDoverride = UINT_MAX
+            Win32Application* win32App,
+            const DeviceConfig& config
         );
         ~DeviceResources();
 
         void InitializeDXGIAdapter();
         void SetAdapterOverride(UINT adapterID) { m_adapterIDoverride = adapterID; }
+        void SetVSyncEnabled(bool bEnabled) { m_vsyncEnabled = bEnabled; }
         void CreateDeviceResources();
         void CreateWindowSizeDependentResources();
         void SetWindow(HWND window, int width, int height);
         bool WindowSizeChanged(int width, int height, bool minimized);
         void HandleDeviceLost();
-        void RegisterDeviceNotify(IDeviceNotify* deviceNotify)
+        void RegisterDeviceNotify(IDeviceNotify* pDeviceNotify)
         { 
-            m_deviceNotify = deviceNotify; 
+            m_deviceNotify = pDeviceNotify; 
 
             // On RS4 and higher, applications that handle device removal 
             // should declare themselves as being able to do so
             __if_exists(DXGIDeclareAdapterRemovalSupport)
             {
-                if (deviceNotify)
+                if (pDeviceNotify)
                 {
                     if (FAILED(DXGIDeclareAdapterRemovalSupport()))
                     {
@@ -113,6 +118,7 @@ namespace DX
         unsigned int                GetDeviceOptions() const { return m_options; }
         LPCWSTR                     GetAdapterDescription() const { return m_adapterDescription.c_str(); }
         UINT                        GetAdapterID() const { return m_adapterID; }
+        bool                        IsVSyncEnabled() const { return m_vsyncEnabled; }
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
         {
@@ -172,10 +178,12 @@ namespace DX
         bool                                                m_isWindowVisible;
 
         // Win32
-        ReverieEngine::App::Win32Application*               m_win32App;
+        Win32Application*                                   m_win32App;
         
         // DeviceResources options (see flags above)
         unsigned int                                        m_options;
+        bool                                                m_bTearingSupported;
+        bool                                                m_vsyncEnabled;
 
         // The IDeviceNotify can be held directly as it owns the DeviceResources.
         IDeviceNotify*                                      m_deviceNotify;

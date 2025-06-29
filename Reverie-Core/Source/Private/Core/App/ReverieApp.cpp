@@ -1,14 +1,14 @@
-﻿#include "ReverieEngine/App/ReverieApp.h"
+﻿#include "ReverieEngine/Core/App/ReverieApp.h"
 
-#include "ReverieEngine/App/BaseClientApp.h"
-#include "ReverieEngine/App/Win32Application.h"
+#include "ReverieEngine/Core/App/Win32Application.h"
+#include "ReverieEngine/Core/App/DeviceResources.h"
+#include "ReverieEngine/Core/App/GameTimer.h"
 #include "ReverieEngine/Util/DebugUtil.h"
 
-using namespace ReverieEngine::App;
-using namespace DX;
+using namespace ReverieEngine::Core::App;
 
-std::unique_ptr<ReverieApp> ReverieApp::CreateWithWin32(UINT width, UINT height, const std::wstring& title,
-    std::unique_ptr<Win32Application>* outWin32App)
+std::unique_ptr<ReverieApp> ReverieApp::CreateWithWin32(const UINT width, const UINT height,
+    const std::wstring& title, std::unique_ptr<Win32Application>* ppOutWin32App)
 {
     auto app = std::make_unique<ReverieApp>(width, height, std::move(title));
     auto win32 = std::make_unique<Win32Application>();
@@ -16,8 +16,8 @@ std::unique_ptr<ReverieApp> ReverieApp::CreateWithWin32(UINT width, UINT height,
     app->BindToWin32App(win32.get());
     win32->BindToClientApp(app.get());
     
-    if(outWin32App)
-        *outWin32App = std::move(win32);
+    if(ppOutWin32App)
+        *ppOutWin32App = std::move(win32);
         
     return app;
 }
@@ -30,26 +30,31 @@ void ReverieApp::OnDeviceRestored()
 
 void ReverieApp::OnInit()
 {
-    m_deviceResources = std::make_unique<DeviceResources>(
-        m_win32App,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        DXGI_FORMAT_UNKNOWN,
-        k_FrameCount,
-        D3D_FEATURE_LEVEL_11_0,
-        DeviceResources::c_RequireTearingSupport,
-        m_adapterIDoverride
-    );
-
+    DeviceConfig config;
+    config.vsyncEnabled = false;
+    config.backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    config.depthBufferFormat = DXGI_FORMAT_UNKNOWN;
+    config.backBufferCount = k_FrameCount;
+    config.minFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+    config.flags = DeviceResources::c_AllowTearing;
+    config.adapterIDoverride = m_adapterIDoverride;
+    
+    m_deviceResources = std::make_unique<DeviceResources>(m_win32App, config);
     m_deviceResources->RegisterDeviceNotify(this);
     m_deviceResources->SetWindow(m_win32App->GetHwnd(), m_width, m_height);
     m_deviceResources->InitializeDXGIAdapter();
 
     m_deviceResources->CreateDeviceResources();
     m_deviceResources->CreateWindowSizeDependentResources();
+
+    m_gameTimer = std::make_unique<GameTimer>();
+    m_gameTimer->Initialize();
 }
 
 void ReverieApp::OnUpdate()
-{ }
+{
+    m_gameTimer->Tick();
+}
 
 void ReverieApp::OnRender()
 {
@@ -74,9 +79,9 @@ void ReverieApp::OnRender()
 void ReverieApp::OnDestroy()
 { }
 
-void ReverieApp::OnWindowSizeChanged(int width, int height, bool minimized)
+void ReverieApp::OnWindowSizeChanged(const int width, const int height, const bool bMinimized)
 {
-    if(!m_deviceResources->WindowSizeChanged(width, height, minimized))
+    if(!m_deviceResources->WindowSizeChanged(width, height, bMinimized))
     {
         return;
     }

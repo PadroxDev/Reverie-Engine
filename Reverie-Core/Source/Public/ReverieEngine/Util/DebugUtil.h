@@ -19,16 +19,17 @@ inline std::wstring Utf8ToWide(const std::string& str) {
     return wide;
 }
 
-inline void OutputContextDebugImp(const char* file, const char* func, const std::wstring& msg) {
+inline void OutputContextDebugImp(const char* file, const char* func, const int line, const std::wstring& msg) {
     std::wstring className = GetFileBaseName(file);
     std::wstring functionName(func, func + strlen(func)); // simple ASCII-safe conversion
-
-    std::wstring fullMsg = L"[" + className + L"." + functionName + L"]: " + msg + L"/n";
+    std::wstring lineName = std::to_wstring(line);
+    
+    std::wstring fullMsg = L"[" + className + L"." + functionName + L"." + lineName + L"]: " + msg + L"\n";
     OutputDebugString(fullMsg.c_str());
 }
 
-inline void OutputContextDebugImp(const char* file, const char* func, const std::string& msg) {
-    OutputContextDebugImp(file, func, Utf8ToWide(msg));
+inline void OutputContextDebugImp(const char* file, const char* func, const int line, const std::string& msg) {
+    OutputContextDebugImp(file, func, line, Utf8ToWide(msg));
 }
 
-#define OutputCtxDebug(msg) OutputContextDebugImp(__FILE__, __func__, msg)
+#define OutputCtxDebug(msg) OutputContextDebugImp(__FILE__, __func__, __LINE__, msg)

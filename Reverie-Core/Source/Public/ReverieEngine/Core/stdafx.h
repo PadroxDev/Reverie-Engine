@@ -38,5 +38,5 @@
 #endif
 
 #include "d3dx12.h"
-#include "ReverieEngine/App/DeviceResources.h"
+#include "ReverieEngine/Core/App/DeviceResources.h"
 #include "ReverieEngine/Util/D3D12Util.h"

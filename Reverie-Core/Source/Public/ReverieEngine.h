@@ -1,6 +1,5 @@
 ﻿#pragma once
 
 // Global include of the Reverie Engine
-#include "ReverieEngine/Core/Core.h"
-#include "ReverieEngine/App/Win32Application.h"
-#include "ReverieEngine/App/ReverieApp.h"
+#include "ReverieEngine/Util/ReverieUtil.h"
+#include "ReverieEngine/Core/ReverieCore.h"
