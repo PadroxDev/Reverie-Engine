@@ -1,17 +1,17 @@
 ﻿#pragma once
 
-#include "stdafx.h"
+#include "ReverieEngine/Core/stdafx.h"
 
 #include <string>
 #include <wrl/client.h>
 
 using Microsoft::WRL::ComPtr;
 
-namespace ReverieEngine::App
+namespace ReverieEngine::Core::App
 {
     class Win32Application;
     
-    class BaseClientApp : public DX::IDeviceNotify
+    class BaseClientApp : public IDeviceNotify
     {
     public:
         virtual void OnInit() = 0;
@@ -29,19 +29,21 @@ namespace ReverieEngine::App
         UINT GetHeight() const { return m_height; }
         const wchar_t* GetWindowTitle() const { return m_windowTitle.c_str(); }
         RECT GetWindowBounds() const { return m_windowBounds; }
-        virtual IDXGISwapChain* GetSwapchain() const { return nullptr; }
-        DX::DeviceResources* GetDeviceResources() const { return m_deviceResources.get(); }
+        DeviceResources* GetDeviceResources() const { return m_deviceResources.get(); }
+        virtual IDXGISwapChain* GetSwapChain() const { return m_deviceResources ? m_deviceResources->GetSwapChain() : nullptr; }
+        virtual IDXGIFactory* GetDXGIFactory() const { return m_deviceResources ? m_deviceResources->GetDXGIFactory() : nullptr; }
+        virtual IDXGIAdapter* GetDXGIAdapter() const { return m_deviceResources ? m_deviceResources->GetAdapter() : nullptr; }
         
     #pragma endregion
 
         // Bidirectional binding to Win32Application that powers this client app.
-        void BindToWin32App(Win32Application* app);
+        void BindToWin32App(Win32Application* pApp);
         
         void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
         void SetWindowBounds(const RECT& newRect);
         
     protected:
-        BaseClientApp(UINT width, UINT height, std::wstring title);
+        BaseClientApp(UINT width, UINT height, const std::wstring& title);
         virtual ~BaseClientApp() = default;
         
         void SetWindowTitle(const std::wstring& title) const;
@@ -55,7 +57,7 @@ namespace ReverieEngine::App
         RECT m_windowBounds;
 
         UINT m_adapterIDoverride;
-        std::unique_ptr<DX::DeviceResources> m_deviceResources;
+        std::unique_ptr<DeviceResources> m_deviceResources;
         
     private:
         std::wstring m_windowTitle;

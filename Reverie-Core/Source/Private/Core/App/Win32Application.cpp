@@ -1,15 +1,27 @@
-﻿#include "ReverieEngine/App/Win32Application.h"
+﻿#include "ReverieEngine/Core/App/Win32Application.h"
 
+#include <iostream>
 #include <wrl/client.h>
 
-#include "resources.h"
-#include "stdafx.h"
-#include "ReverieEngine/App/BaseClientApp.h"
+#include "ReverieEngine/Core/stdafx.h"
+#include "ReverieEngine/Core/App/BaseClientApp.h"
 #include "ReverieEngine/Util/DebugUtil.h"
+#include "resources.h"
 
 using namespace Microsoft::WRL;
 
-using namespace ReverieEngine::App;
+using namespace ReverieEngine::Core::App;
+
+void Win32Application::BindToClientApp(BaseClientApp* pClientApp)
+{
+    if(m_clientApp != nullptr)
+    {
+        OutputCtxDebug(L"Win32Application is already bound to a BaseClientApp instance!");
+        return;
+    }
+    
+    m_clientApp = pClientApp;
+}
 
 int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
 {
@@ -54,7 +66,7 @@ int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
         m_hwnd = CreateWindow(
             windowClass.lpszClassName,
             m_clientApp->GetWindowTitle(),
-            m_WindowStyle,
+            m_kWindowStyle,
             x,
             y,
             windowRect.right - windowRect.left,
@@ -96,85 +108,99 @@ int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
     }
 }
 
-// Convert a styled window into a fullscreen borderless window and back again.
-void Win32Application::ToggleFullscreenWindow(IDXGISwapChain* pSwapChain)
+void Win32Application::SetFullscreenMode(const FullscreenMode mode)
 {
-    if (m_bFullscreen)
-    {
-        // Restore the window's attributes and size.
-        SetWindowLong(m_hwnd, GWL_STYLE, m_WindowStyle);
-
-        SetWindowPos(
-            m_hwnd,
-            HWND_NOTOPMOST,
-            m_windowRect.left,
-            m_windowRect.top,
-            m_windowRect.right - m_windowRect.left,
-            m_windowRect.bottom - m_windowRect.top,
-            SWP_FRAMECHANGED | SWP_NOACTIVATE);
-
-        ShowWindow(m_hwnd, SW_NORMAL);
-    }
-    else
-    {
-        // Save the old window rect so we can restore it when exiting fullscreen mode.
-        GetWindowRect(m_hwnd, &m_windowRect);
-
-        // Make the window borderless so that the client area can fill the screen.
-        SetWindowLong(m_hwnd, GWL_STYLE, m_WindowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
-
-        RECT fullscreenWindowRect;
-        try
+    if (mode == m_currentFullscreenMode)
+        return; // Already in this mode
+    
+    auto pSwapChain = m_clientApp->GetSwapChain();
+    
+    switch(mode) {
+    case FullscreenMode::Borderless:
         {
-            if (pSwapChain)
+            // Save the old window rect so we can restore it when exiting fullscreen mode.
+            GetWindowRect(m_hwnd, &m_windowRect);
+
+            // Make the window borderless so that the client area can fill the screen.
+            SetWindowLong(m_hwnd, GWL_STYLE, m_kWindowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+
+            RECT fullscreenWindowRect;
+            try
             {
-                // Get the settings of the display on which the app's window is currently displayed
-                ComPtr<IDXGIOutput> pOutput;
-                ThrowIfFailed(pSwapChain->GetContainingOutput(&pOutput));
-                DXGI_OUTPUT_DESC Desc;
-                ThrowIfFailed(pOutput->GetDesc(&Desc));
-                fullscreenWindowRect = Desc.DesktopCoordinates;
+                if (pSwapChain)
+                {
+                    // Get the settings of the display on which the app's window is currently displayed
+                    ComPtr<IDXGIOutput> pOutput;
+                    ThrowIfFailed(pSwapChain->GetContainingOutput(&pOutput));
+                    DXGI_OUTPUT_DESC Desc;
+                    ThrowIfFailed(pOutput->GetDesc(&Desc));
+                    fullscreenWindowRect = Desc.DesktopCoordinates;
+                }
+                else
+                {
+                    // Fallback to EnumDisplaySettings implementation
+                    throw HrException(S_FALSE);
+                }
             }
-            else
+            catch (HrException& e)
             {
-                // Fallback to EnumDisplaySettings implementation
-                throw HrException(S_FALSE);
+                UNREFERENCED_PARAMETER(e);
+
+                // Get the settings of the primary display
+                DEVMODE devMode = {};
+                devMode.dmSize = sizeof(DEVMODE);
+                EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode);
+
+                fullscreenWindowRect = {
+                    devMode.dmPosition.x,
+                    devMode.dmPosition.y,
+                    devMode.dmPosition.x + static_cast<LONG>(devMode.dmPelsWidth),
+                    devMode.dmPosition.y + static_cast<LONG>(devMode.dmPelsHeight)
+                };
             }
+
+            SetWindowPos(
+                m_hwnd,
+                HWND_TOP, // Could be TOPMOST
+                fullscreenWindowRect.left,
+                fullscreenWindowRect.top,
+                fullscreenWindowRect.right,
+                fullscreenWindowRect.bottom,
+                SWP_FRAMECHANGED | SWP_NOACTIVATE
+            );
+
+            ShowWindow(m_hwnd, SW_MAXIMIZE);
         }
-        catch (HrException& e)
+        break;
+    case FullscreenMode::Windowed:
         {
-            UNREFERENCED_PARAMETER(e);
+            // Restore the window's attributes and size.
+            SetWindowLong(m_hwnd, GWL_STYLE, m_kWindowStyle);
 
-            // Get the settings of the primary display
-            DEVMODE devMode = {};
-            devMode.dmSize = sizeof(DEVMODE);
-            EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode);
+            SetWindowPos(
+                m_hwnd,
+                HWND_NOTOPMOST,
+                m_windowRect.left,
+                m_windowRect.top,
+                m_windowRect.right - m_windowRect.left,
+                m_windowRect.bottom - m_windowRect.top,
+                SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
-            fullscreenWindowRect = {
-                devMode.dmPosition.x,
-                devMode.dmPosition.y,
-                devMode.dmPosition.x + static_cast<LONG>(devMode.dmPelsWidth),
-                devMode.dmPosition.y + static_cast<LONG>(devMode.dmPelsHeight)
-            };
+            ShowWindow(m_hwnd, SW_NORMAL);
         }
-
-        SetWindowPos(
-            m_hwnd,
-            HWND_TOPMOST,
-            fullscreenWindowRect.left,
-            fullscreenWindowRect.top,
-            fullscreenWindowRect.right,
-            fullscreenWindowRect.bottom,
-            SWP_FRAMECHANGED | SWP_NOACTIVATE);
-
-
-        ShowWindow(m_hwnd, SW_MAXIMIZE);
+        break;
     }
 
-    m_bFullscreen ^= true;
+    m_currentFullscreenMode = mode;
 }
 
-void Win32Application::SetWindowZOrderToTopMost(BOOL bSetToTopMost)
+void Win32Application::ToggleFullscreenMode()
+{
+    FullscreenMode newMode = m_currentFullscreenMode == FullscreenMode::Windowed ? FullscreenMode::Borderless : FullscreenMode::Windowed;
+    SetFullscreenMode(newMode);
+}
+
+void Win32Application::SetWindowZOrderToTopMost(const BOOL bSetToTopMost)
 {
     RECT windowRect;
     GetWindowRect(m_hwnd, &windowRect);
@@ -192,23 +218,12 @@ void Win32Application::SetWindowZOrderToTopMost(BOOL bSetToTopMost)
 
 Win32Application::Win32Application() :
     m_hwnd(nullptr),
-    m_bFullscreen(FALSE),
     m_windowRect({}),
+    m_currentFullscreenMode(FullscreenMode::Windowed),
     m_clientApp(nullptr)
 { }
 
-void Win32Application::BindToClientApp(BaseClientApp* clientApp)
-{
-    if(m_clientApp != nullptr)
-    {
-        OutputCtxDebug(L"Win32Application is already bound to a BaseClientApp instance!");
-        return;
-    }
-    
-    m_clientApp = clientApp;
-}
-
-LRESULT Win32Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT Win32Application::WindowProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
 {
     Win32Application* win32App = reinterpret_cast<Win32Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     BaseClientApp* clientApp = (win32App != nullptr) ? win32App->GetClientApp() : nullptr;
@@ -229,13 +244,20 @@ LRESULT Win32Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
             {
                 if (clientApp && clientApp->GetDeviceResources()->IsTearingSupported())
                 {
-                    win32App->ToggleFullscreenWindow(clientApp->GetSwapchain());
+                    // Loop through fullscreen modes and toggle between them.
+                    win32App->ToggleFullscreenMode();
                     return 0;
                 }
+                return 0;
             }
         // Send all other WM_SYSKEYDOWN messages to the default WndProc.
         break;
-        
+    case WM_SYSCHAR:
+        if (wParam == VK_RETURN)
+        {
+            return 0; // Prevent system beep on Alt+Enter
+        }
+        break;
     case WM_PAINT:
         if (clientApp != nullptr)
         {

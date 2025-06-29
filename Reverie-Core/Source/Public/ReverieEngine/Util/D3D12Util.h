@@ -3,7 +3,7 @@
 #include <sal.h>
 #include <stdexcept>
 
-#include "stdafx.h"
+#include "ReverieEngine/Core/stdafx.h"
 
 struct IDXGIFactory1;
 struct IDXGIAdapter1;

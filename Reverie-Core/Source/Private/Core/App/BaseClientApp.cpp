@@ -1,11 +1,11 @@
-﻿#include "ReverieEngine/App/BaseClientApp.h"
+﻿#include "ReverieEngine/Core/App/BaseClientApp.h"
 
-#include "ReverieEngine/App/Win32Application.h"
+#include "ReverieEngine/Core/App/Win32Application.h"
 #include "ReverieEngine/Util/DebugUtil.h"
 
-using namespace ReverieEngine::App;
+using namespace ReverieEngine::Core::App;
 
-void BaseClientApp::BindToWin32App(Win32Application* app)
+void BaseClientApp::BindToWin32App(Win32Application* pApp)
 {
     if(m_win32App != nullptr)
     {
@@ -13,10 +13,10 @@ void BaseClientApp::BindToWin32App(Win32Application* app)
         return;
     }
     
-    m_win32App = app;
+    m_win32App = pApp;
 }
 
-BaseClientApp::BaseClientApp(UINT width, UINT height, std::wstring title) :
+BaseClientApp::BaseClientApp(const UINT width, const UINT height, const std::wstring& title) :
     m_aspectRatio(0.f),
     m_windowBounds({}),
     m_adapterIDoverride(UINT_MAX),
@@ -26,7 +26,7 @@ BaseClientApp::BaseClientApp(UINT width, UINT height, std::wstring title) :
     UpdateForSizeChange(width, height);
 }
 
-void BaseClientApp::UpdateForSizeChange(UINT clientWidth, UINT clientHeight)
+void BaseClientApp::UpdateForSizeChange(const UINT clientWidth, const UINT clientHeight)
 {
     m_width = clientWidth;
     m_height = clientHeight;
