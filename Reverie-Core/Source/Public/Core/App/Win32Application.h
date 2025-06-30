@@ -5,9 +5,12 @@
 
 struct IDXGISwapChain;
 
-namespace ReverieEngine::Core::App
+namespace ReverieEngine
 {
-    class BaseClientApp;
+    namespace Core
+    {
+        class BaseClientApp;
+    }
     
     class Win32Application
     {
@@ -15,18 +18,18 @@ namespace ReverieEngine::Core::App
         Win32Application();
         virtual ~Win32Application() = default;
 
-        void BindToClientApp(BaseClientApp* pClientApp);
+        void BindToClientApp(Core::BaseClientApp* pClientApp);
         int Run(HINSTANCE hInstance, int nCmdShow);
 
-        void SetFullscreenMode(FullscreenMode mode);
+        void SetFullscreenMode(EFullscreenMode mode);
         void ToggleFullscreenMode();
         void SetWindowZOrderToTopMost(BOOL setToTopMost);
 
-        BaseClientApp* GetClientApp() const { return m_clientApp; }
+        Core::BaseClientApp* GetClientApp() const { return m_clientApp; }
         HWND GetHwnd() const { return m_hwnd; }
-        FullscreenMode GetFullscreenMode() const { return m_currentFullscreenMode; }
-        bool IsWindowed() const { return m_currentFullscreenMode == FullscreenMode::Windowed; }
-        bool IsBorderlessFullscreen() const { return m_currentFullscreenMode == FullscreenMode::Borderless; }
+        EFullscreenMode GetFullscreenMode() const { return m_currentFullscreenMode; }
+        bool IsWindowed() const { return m_currentFullscreenMode == EFullscreenMode::Windowed; }
+        bool IsBorderlessFullscreen() const { return m_currentFullscreenMode == EFullscreenMode::Borderless; }
 
     protected:
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -34,10 +37,10 @@ namespace ReverieEngine::Core::App
     private:
         HWND m_hwnd;
         RECT m_windowRect;
-        FullscreenMode m_currentFullscreenMode;
+        EFullscreenMode m_currentFullscreenMode;
         const UINT m_kWindowStyle = WS_OVERLAPPEDWINDOW;
         
-        BaseClientApp* m_clientApp;
+        Core::BaseClientApp* m_clientApp;
     };
 
 }

@@ -57,6 +57,7 @@
 #include <exception>
 #include <stdexcept>
 #include <format>
+#include <numbers>
 #include <limits>
 
 #include <ppltasks.h>

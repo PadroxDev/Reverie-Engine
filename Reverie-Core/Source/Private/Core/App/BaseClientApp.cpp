@@ -3,7 +3,8 @@
 
 #include "Core/App/Win32Application.h"
 
-using namespace ReverieEngine::Core::App;
+using namespace ReverieEngine;
+using namespace ReverieEngine::Core;
 
 void BaseClientApp::BindToWin32App(Win32Application* pApp)
 {

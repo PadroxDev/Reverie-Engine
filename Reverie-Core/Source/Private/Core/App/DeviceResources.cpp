@@ -4,7 +4,7 @@
 #include "Core/App/Win32Application.h"
 #include "Core/Utilities/D3D12Util.h"
 
-using namespace ReverieEngine::Core::App;
+using namespace ReverieEngine::Core;
 using namespace std;
 
 namespace

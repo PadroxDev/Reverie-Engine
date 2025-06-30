@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace ReverieEngine::Core::App
+namespace ReverieEngine::Core
 {
     class GameTimer
     {

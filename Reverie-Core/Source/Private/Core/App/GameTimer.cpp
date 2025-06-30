@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Core/App/GameTimer.h"
 
-using namespace ReverieEngine::Core::App;
+using namespace ReverieEngine::Core;
 
 GameTimer::GameTimer() :
     m_previousTime({ }),

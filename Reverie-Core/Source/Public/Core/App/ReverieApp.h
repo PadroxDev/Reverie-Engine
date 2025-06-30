@@ -1,11 +1,16 @@
 ﻿#pragma once
 #include "Core/App/BaseClientApp.h"
 
-namespace ReverieEngine::Core::App
+namespace ReverieEngine
 {
-    class GameTimer;
+    class Win32Application;
+    
+    namespace Core
+    {
+        class GameTimer;
+    }
 
-    class ReverieApp : public BaseClientApp
+    class ReverieApp : public Core::BaseClientApp
     {
     public:
         static std::unique_ptr<ReverieApp> CreateWithWin32(UINT width, UINT height, const std::wstring& title,
@@ -26,10 +31,10 @@ namespace ReverieEngine::Core::App
         void OnWindowSizeChanged(int width, int height, bool minimized) override;
 
         // Accessors
-        GameTimer* GetGameTimer() const { return m_gameTimer.get(); }
+        Core::GameTimer* GetGameTimer() const { return m_gameTimer.get(); }
         
     protected:
-        std::unique_ptr<GameTimer> m_gameTimer;
+        std::unique_ptr<Core::GameTimer> m_gameTimer;
     
     private:
         static constexpr UINT k_FrameCount = 3; // Buffering: triple buffering

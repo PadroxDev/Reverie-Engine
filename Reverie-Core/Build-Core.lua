@@ -14,7 +14,6 @@ project "Reverie-Core"
    }
 
    includedirs {
-      "Source/Internal",
       "Source/Public",
       "Resources"
    }

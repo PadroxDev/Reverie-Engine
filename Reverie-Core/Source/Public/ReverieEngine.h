@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+namespace ReverieEngine { }
+namespace rev = ReverieEngine;
+
 // Topmost include for Reverie Engine
-#include "../Internal/Core/ReverieCore.h"
-#include "../Internal/Core/Utilities/DebugUtil.h"
+#include "Core/ReverieCore.h"
+#include "Core/Utilities/DebugUtil.h"

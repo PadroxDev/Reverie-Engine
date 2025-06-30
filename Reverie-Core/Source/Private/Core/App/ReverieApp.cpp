@@ -4,7 +4,7 @@
 #include "Core/App/Win32Application.h"
 #include "Core/App/GameTimer.h"
 
-using namespace ReverieEngine::Core::App;
+using namespace ReverieEngine;
 
 std::unique_ptr<ReverieApp> ReverieApp::CreateWithWin32(const UINT width, const UINT height,
     const std::wstring& title, std::unique_ptr<Win32Application>* ppOutWin32App)
@@ -29,16 +29,16 @@ void ReverieApp::OnDeviceRestored()
 
 void ReverieApp::OnInit()
 {
-    DeviceConfig config;
+    Core::DeviceConfig config;
     config.vsyncEnabled = false;
     config.backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     config.depthBufferFormat = DXGI_FORMAT_UNKNOWN;
     config.backBufferCount = k_FrameCount;
     config.minFeatureLevel = D3D_FEATURE_LEVEL_11_0;
-    config.flags = DeviceResources::c_AllowTearing;
+    config.flags = Core::DeviceResources::c_AllowTearing;
     config.adapterIDoverride = m_adapterIDoverride;
     
-    m_deviceResources = std::make_unique<DeviceResources>(m_win32App, config);
+    m_deviceResources = std::make_unique<Core::DeviceResources>(m_win32App, config);
     m_deviceResources->RegisterDeviceNotify(this);
     m_deviceResources->SetWindow(m_win32App->GetHwnd(), m_width, m_height);
     m_deviceResources->InitializeDXGIAdapter();
@@ -46,7 +46,7 @@ void ReverieApp::OnInit()
     m_deviceResources->CreateDeviceResources();
     m_deviceResources->CreateWindowSizeDependentResources();
 
-    m_gameTimer = std::make_unique<GameTimer>();
+    m_gameTimer = std::make_unique<Core::GameTimer>();
     m_gameTimer->Initialize();
 }
 

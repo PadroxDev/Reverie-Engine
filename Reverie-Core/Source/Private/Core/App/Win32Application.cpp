@@ -6,10 +6,9 @@
 #include "resources.h"
 
 using namespace Microsoft::WRL;
+using namespace ReverieEngine;
 
-using namespace ReverieEngine::Core::App;
-
-void Win32Application::BindToClientApp(BaseClientApp* pClientApp)
+void Win32Application::BindToClientApp(Core::BaseClientApp* pClientApp)
 {
     if(m_clientApp != nullptr)
     {
@@ -105,7 +104,7 @@ int Win32Application::Run(HINSTANCE hInstance, int nCmdShow)
     }
 }
 
-void Win32Application::SetFullscreenMode(const FullscreenMode mode)
+void Win32Application::SetFullscreenMode(const EFullscreenMode mode)
 {
     if (mode == m_currentFullscreenMode)
         return; // Already in this mode
@@ -113,7 +112,7 @@ void Win32Application::SetFullscreenMode(const FullscreenMode mode)
     auto pSwapChain = m_clientApp->GetSwapChain();
     
     switch(mode) {
-    case FullscreenMode::Borderless:
+    case EFullscreenMode::Borderless:
         {
             // Save the old window rect so we can restore it when exiting fullscreen mode.
             GetWindowRect(m_hwnd, &m_windowRect);
@@ -169,7 +168,7 @@ void Win32Application::SetFullscreenMode(const FullscreenMode mode)
             ShowWindow(m_hwnd, SW_MAXIMIZE);
         }
         break;
-    case FullscreenMode::Windowed:
+    case EFullscreenMode::Windowed:
         {
             // Restore the window's attributes and size.
             SetWindowLong(m_hwnd, GWL_STYLE, m_kWindowStyle);
@@ -193,7 +192,7 @@ void Win32Application::SetFullscreenMode(const FullscreenMode mode)
 
 void Win32Application::ToggleFullscreenMode()
 {
-    FullscreenMode newMode = m_currentFullscreenMode == FullscreenMode::Windowed ? FullscreenMode::Borderless : FullscreenMode::Windowed;
+    EFullscreenMode newMode = m_currentFullscreenMode == Windowed ? Borderless : Windowed;
     SetFullscreenMode(newMode);
 }
 
@@ -216,14 +215,14 @@ void Win32Application::SetWindowZOrderToTopMost(const BOOL bSetToTopMost)
 Win32Application::Win32Application() :
     m_hwnd(nullptr),
     m_windowRect({}),
-    m_currentFullscreenMode(FullscreenMode::Windowed),
+    m_currentFullscreenMode(EFullscreenMode::Windowed),
     m_clientApp(nullptr)
 { }
 
 LRESULT Win32Application::WindowProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
 {
     Win32Application* win32App = reinterpret_cast<Win32Application*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-    BaseClientApp* clientApp = (win32App != nullptr) ? win32App->GetClientApp() : nullptr;
+    Core::BaseClientApp* clientApp = (win32App != nullptr) ? win32App->GetClientApp() : nullptr;
     
     switch(message)
     {
