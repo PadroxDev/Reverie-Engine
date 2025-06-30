@@ -13,7 +13,8 @@ project "Reverie-Game"
 
    includedirs
    {
-      "../Reverie-Core/Source/Public"
+      "../Reverie-Core/Source/Public",
+      "../Reverie-Core/Source/Internal"
    }
 
    links

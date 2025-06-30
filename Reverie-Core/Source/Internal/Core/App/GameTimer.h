@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "ReverieEngine/Core/stdafx.h"
-
 namespace ReverieEngine::Core::App
 {
     class GameTimer

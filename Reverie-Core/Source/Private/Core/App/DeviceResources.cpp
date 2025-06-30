@@ -1,7 +1,8 @@
-﻿#include "ReverieEngine/Core/App/DeviceResources.h"
+﻿#include "pch.h"
+#include "Core/App/DeviceResources.h"
 
-#include "ReverieEngine/Core/App/Win32Application.h"
-#include "ReverieEngine/Util/DebugUtil.h"
+#include "Core/App/Win32Application.h"
+#include "Core/Utilities/D3D12Util.h"
 
 using namespace ReverieEngine::Core::App;
 using namespace std;
@@ -244,8 +245,8 @@ void DeviceResources::CreateWindowSizeDependentResources()
     }
 
     // Determine the render target size in pixels.
-    UINT backBufferWidth = max(m_outputSize.right - m_outputSize.left, 1);
-    UINT backBufferHeight = max(m_outputSize.bottom - m_outputSize.top, 1);
+    UINT backBufferWidth = max<LONG>(m_outputSize.right - m_outputSize.left, 1);
+    UINT backBufferHeight = max<LONG>(m_outputSize.bottom - m_outputSize.top, 1);
     DXGI_FORMAT backBufferFormat = NoSRGB(m_backBufferFormat);
 
     // If the swap chain already exists, resize it, otherwise create one.

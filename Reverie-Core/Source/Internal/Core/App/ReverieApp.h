@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ReverieEngine/Core/App/BaseClientApp.h"
+#include "Core/App/BaseClientApp.h"
 
 namespace ReverieEngine::Core::App
 {

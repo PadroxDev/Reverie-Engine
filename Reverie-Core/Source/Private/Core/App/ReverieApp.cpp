@@ -1,9 +1,8 @@
-﻿#include "ReverieEngine/Core/App/ReverieApp.h"
+﻿#include "pch.h"
+#include "Core/App/ReverieApp.h"
 
-#include "ReverieEngine/Core/App/Win32Application.h"
-#include "ReverieEngine/Core/App/DeviceResources.h"
-#include "ReverieEngine/Core/App/GameTimer.h"
-#include "ReverieEngine/Util/DebugUtil.h"
+#include "Core/App/Win32Application.h"
+#include "Core/App/GameTimer.h"
 
 using namespace ReverieEngine::Core::App;
 

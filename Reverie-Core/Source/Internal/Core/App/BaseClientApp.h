@@ -1,9 +1,6 @@
 ﻿#pragma once
 
-#include "ReverieEngine/Core/stdafx.h"
-
-#include <string>
-#include <wrl/client.h>
+#include "pch.h"
 
 using Microsoft::WRL::ComPtr;
 

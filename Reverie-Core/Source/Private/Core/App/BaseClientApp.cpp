@@ -1,7 +1,7 @@
-﻿#include "ReverieEngine/Core/App/BaseClientApp.h"
+﻿#include "pch.h"
+#include "Core/App/BaseClientApp.h"
 
-#include "ReverieEngine/Core/App/Win32Application.h"
-#include "ReverieEngine/Util/DebugUtil.h"
+#include "Core/App/Win32Application.h"
 
 using namespace ReverieEngine::Core::App;
 

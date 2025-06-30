@@ -1,11 +1,8 @@
-﻿#include "ReverieEngine/Core/App/Win32Application.h"
+﻿#include "pch.h"
 
-#include <iostream>
-#include <wrl/client.h>
-
-#include "ReverieEngine/Core/stdafx.h"
-#include "ReverieEngine/Core/App/BaseClientApp.h"
-#include "ReverieEngine/Util/DebugUtil.h"
+#include "Core/App/Win32Application.h"
+#include "Core/App/BaseClientApp.h"
+#include "Core/Utilities/D3D12Util.h"
 #include "resources.h"
 
 using namespace Microsoft::WRL;

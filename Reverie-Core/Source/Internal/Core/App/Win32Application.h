@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "ReverieEngine/Core/stdafx.h"
-#include "ReverieEngine/Core/App/Enums/FullscreenMode.h"
+#include "pch.h"
+#include "Core/App/Enums/FullscreenMode.h"
 
 struct IDXGISwapChain;
 

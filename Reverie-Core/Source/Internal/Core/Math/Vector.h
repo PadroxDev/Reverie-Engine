@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include <DirectXMath.h>
-#include <limits>
 
 using namespace DirectX;
 
@@ -20,7 +18,6 @@ namespace ReverieEngine::Core::Math
                 // Unused but reserved for alignment
                 float z, w;
             };
-            struct { float r, g; };
             struct { float u, v; };
             XMVECTOR simdVector;
         };
@@ -137,7 +134,6 @@ namespace ReverieEngine::Core::Math
                 // Unused but reserved for alignment
                 float w;
             };
-            struct { float r, g, b; };
             struct { float u, v; } uv;
             XMVECTOR simdVector;
         };
@@ -203,31 +199,6 @@ namespace ReverieEngine::Core::Math
             if (index == 2) return z;
             throw std::out_of_range("Index out of range for Vector3");
         }
-
-        float Magnitude() const { return XMVectorGetX(XMVector3Length(simdVector)); }
-        float SqrMagnitude() const { return XMVectorGetX(XMVector3LengthSq(simdVector)); }
-        Vector3 Normalized() const { return Vector3(XMVector3Normalize(simdVector)); }
-        void Normalize() { simdVector = XMVector3Normalize(simdVector); }
-        /**
-         * Returns an approximate normalized vector.
-         * 
-         * This uses a fast, lower-precision reciprocal square root estimate
-         * for better performance at the cost of some accuracy.
-         * 
-         * Suitable for use cases where speed is more important than exact precision,
-         * such as visual effects or non-critical math calculations.
-         */
-        Vector3 FastNormalized() const { return Vector3(XMVector3NormalizeEst(simdVector)); }
-        /**
-         * Normalizes the vector approximately in place using NormalizeEst.
-         * 
-         * This method uses a fast, lower-precision reciprocal square root estimate
-         * to improve performance at the cost of some accuracy.
-         * 
-         * Use FastNormalize when speed is prioritized over exact precision,
-         * such as in visual effects or non-critical calculations.
-         */
-        void FastNormalize() { simdVector = XMVector3NormalizeEst(simdVector); }
         
     #pragma region Swizzling Support
         Vector2 GetXY() const { return Vector2(x, y); }
@@ -277,8 +248,7 @@ namespace ReverieEngine::Core::Math
         union
         {
             struct { float x, y, z, w; };
-            struct { float r, g, b, a; };
-            struct { float u, v, s, t; } uv;
+            struct { float u, v; } uv;
             XMVECTOR simdVector;
         };
 
@@ -346,31 +316,6 @@ namespace ReverieEngine::Core::Math
             if (index == 3) return w;
             throw std::out_of_range("Index out of range for Vector4");
         }
-
-        float Magnitude() const { return XMVectorGetX(XMVector4Length(simdVector)); }
-        float SqrMagnitude() const { return XMVectorGetX(XMVector4LengthSq(simdVector)); }
-        Vector4 Normalized() const { return Vector4(XMVector4Normalize(simdVector)); }
-        void Normalize() { simdVector = XMVector4Normalize(simdVector); }
-        /**
-         * Returns an approximate normalized vector.
-         * 
-         * This uses a fast, lower-precision reciprocal square root estimate
-         * for better performance at the cost of some accuracy.
-         * 
-         * Suitable for use cases where speed is more important than exact precision,
-         * such as visual effects or non-critical math calculations.
-         */
-        Vector4 FastNormalized() const { return Vector4(XMVector4NormalizeEst(simdVector)); }
-        /**
-         * Normalizes the vector approximately in place using NormalizeEst.
-         * 
-         * This method uses a fast, lower-precision reciprocal square root estimate
-         * to improve performance at the cost of some accuracy.
-         * 
-         * Use FastNormalize when speed is prioritized over exact precision,
-         * such as in visual effects or non-critical calculations.
-         */
-        void FastNormalize() { simdVector = XMVector4NormalizeEst(simdVector); }
         
     #pragma region Swizzling Support
         Vector2 GetXY() const { return Vector2(x, y); }

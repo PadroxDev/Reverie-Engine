@@ -1,4 +1,5 @@
-﻿#include "ReverieEngine/Core/App/GameTimer.h"
+﻿#include "pch.h"
+#include "Core/App/GameTimer.h"
 
 using namespace ReverieEngine::Core::App;
 

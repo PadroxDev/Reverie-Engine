@@ -14,15 +14,13 @@ project "Reverie-Core"
    }
 
    includedirs {
-      "Source",
-      "Source/Private",
+      "Source/Internal",
       "Source/Public",
       "Resources"
    }
 
-   externalincludedirs {
-      "Source",
-   }
+   pchheader "pch.h"
+   pchsource "Source/Private/pch.cpp"
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
    objdir ("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")

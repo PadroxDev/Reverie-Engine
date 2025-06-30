@@ -1,5 +1,5 @@
 ﻿#pragma once
 
-// Global include of the Reverie Engine
-#include "ReverieEngine/Util/ReverieUtil.h"
-#include "ReverieEngine/Core/ReverieCore.h"
+// Topmost include for Reverie Engine
+#include "../Internal/Core/ReverieCore.h"
+#include "../Internal/Core/Utilities/DebugUtil.h"

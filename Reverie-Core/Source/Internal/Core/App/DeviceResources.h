@@ -17,11 +17,6 @@
 
 #pragma once
 
-#include <wrl/client.h>
-#include <Unknwn.h>
-
-#include "ReverieEngine/Core/stdafx.h"
-
 using namespace Microsoft::WRL;
 
 namespace ReverieEngine::Core::App
