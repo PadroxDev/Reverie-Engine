@@ -15,6 +15,8 @@ OutputDir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 
 group "Core"
 	include "Reverie-Core/Build-Core.lua"
+group "Tests"
+    include "Reverie-Tests/Build-Tests.lua"
 group ""
 
 include "Reverie-Game/Build-Game.lua"

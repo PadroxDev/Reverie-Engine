@@ -116,16 +116,26 @@ namespace ReverieEngine
 #pragma endregion
 
 #pragma region Math static functions
-            static Scalar Dot(Vector2 v1, Vector2 v2) { return Scalar(XMVector2Dot(v1, v2)); }
-            static Scalar Cross(Vector2 v1, Vector2 v2) { return Scalar(XMVector2Cross(v1, v2)); }
-            static Vector2 Reflect(Vector2 v, Vector2 normal) { return Vector2(XMVector2Reflect(v, normal)); }
-            // ClampMagnitude
-            // Unsigned Angle
-            // Signed Angle
-            // Perpendicular
-            // SmoothDamp ? 
-            static Scalar Distance(Vector2 a, Vector2 b) { return (a - b).Length(); }
-            static Scalar SqrDistance(Vector2 a, Vector2 b) { return (a - b).SqrLength(); }
+            static Scalar Dot(Vector2 v1, Vector2 v2);
+            static Scalar Cross(Vector2 v1, Vector2 v2);
+            static Vector2 Reflect(Vector2 v, Vector2 normal);
+            static Scalar Distance(Vector2 a, Vector2 b);
+            static Scalar SqrDistance(Vector2 a, Vector2 b);
+            static Vector2 ClampLength(Vector2 v, float maxLength);
+            static Vector2 SmoothDamp(Vector2 current, Vector2 target, Vector2& currentVelocity, float smoothTime,
+                float deltaTime, float maxSpeed = std::numeric_limits<float>::infinity());
+            // Gets the unsigned angle in degrees between from and to, two arbitrary vectors.
+            static Scalar Angle(Vector2 from, Vector2 to);
+            // Gets the unsigned angle in degrees between from and to, assuming both are normalized.
+            static Scalar AngleNorm(Vector2 from, Vector2 to);
+            // Gets the estimated unsigned angle in degrees between from and to, assuming both are normalized.
+            // More efficient at the cost of accuracy.
+            static Scalar AngleFast(Vector2 nFrom, Vector2 nTo);
+            // Gets the signed angle in degrees between from and to.
+            static Scalar SignedAngle(Vector2 from, Vector2 to);
+            // Gets the signed angle in degrees between from and to, assuming both are normalized.
+            static Scalar SignedAngleNorm(Vector2 nFrom, Vector2 nTo);
+            static Vector2 Perpendicular(Vector2 inDirection);
             static Vector2 Lerp(Vector2 a, Vector2 b, float t);
             static Vector2 Lerp(Vector2 a, Vector2 b, Vector2 t);
             static Vector2 LerpUnclamped(Vector2 a, Vector2 b, float t);
@@ -265,7 +275,33 @@ namespace ReverieEngine
 #pragma endregion
 
 #pragma region Math static functions
-        
+            static Scalar Dot(Vector3 v1, Vector3 v2);
+            static Scalar Cross(Vector3 v1, Vector3 v2);
+            static Vector3 Reflect(Vector3 v, Vector3 normal);
+            static Scalar Distance(Vector3 a, Vector3 b);
+            static Scalar SqrDistance(Vector3 a, Vector3 b);
+            static Vector3 ClampLength(Vector3 v, float maxLength);
+            static Vector3 SmoothDamp(Vector3 current, Vector3 target, Vector3& currentVelocity, float smoothTime,
+                float deltaTime, float maxSpeed = std::numeric_limits<float>::infinity());
+            // Gets the unsigned angle in degrees between from and to, two arbitrary vectors.
+            static Scalar Angle(Vector3 from, Vector3 to);
+            // Gets the unsigned angle in degrees between from and to, assuming both are normalized.
+            static Scalar AngleNorm(Vector3 from, Vector3 to);
+            // Gets the estimated unsigned angle in degrees between from and to, assuming both are normalized.
+            // More efficient at the cost of accuracy.
+            static Scalar AngleFast(Vector3 nFrom, Vector3 nTo);
+            // Gets the signed angle in degrees between from and to.
+            static Scalar SignedAngle(Vector3 from, Vector3 to);
+            // Gets the signed angle in degrees between from and to, assuming both are normalized.
+            static Scalar SignedAngleNorm(Vector3 nFrom, Vector3 nTo);
+            static Vector3 Lerp(Vector3 a, Vector3 b, float t);
+            static Vector3 Lerp(Vector3 a, Vector3 b, Vector3 t);
+            static Vector3 LerpUnclamped(Vector3 a, Vector3 b, float t);
+            static Vector3 LerpUnclamped(Vector3 a, Vector3 b, Vector3 t);
+            static Vector3 Min(Vector3 a, Vector3 b);
+            static Vector3 Max(Vector3 a, Vector3 b);
+            static Vector3 Clamp(Vector3 v, Vector3 a, Vector3 b);
+            static Vector3 Clamp01(Vector3 v);
 #pragma endregion
         
 #pragma region Swizzling Support
@@ -323,12 +359,6 @@ namespace ReverieEngine
             // Static constants for common vectors
             static const Vector4 zero;
             static const Vector4 one;
-            static const Vector4 right;
-            static const Vector4 left;
-            static const Vector4 forward;
-            static const Vector4 backward;
-            static const Vector4 up;
-            static const Vector4 down;
             static const Vector4 positiveInfinity;
             static const Vector4 negativeInfinity;
 
@@ -518,12 +548,6 @@ namespace ReverieEngine
         // Static constants for Vector3
         const Vector4 Vector4::zero = Vector4(XMVectorZero());
         const Vector4 Vector4::one = Vector4(XMVectorSplatOne());
-        const Vector4 Vector4::right = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
-        const Vector4 Vector4::left = Vector4(-1.0f, 0.0f, 0.0f, 0.0f);
-        const Vector4 Vector4::forward = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
-        const Vector4 Vector4::backward = Vector4(0.0f, -1.0f, 0.0f, 0.0f);
-        const Vector4 Vector4::up = Vector4(0.0f, 0.0f, 1.0f, 0.0f);
-        const Vector4 Vector4::down = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
         const Vector4 Vector4::positiveInfinity = Vector4(std::numeric_limits<float>::infinity());
         const Vector4 Vector4::negativeInfinity = Vector4(-std::numeric_limits<float>::infinity());
     

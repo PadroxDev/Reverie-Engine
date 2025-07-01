@@ -8,6 +8,7 @@ project "Reverie-Core"
    files { 
       "Source/**.h",
       "Source/**.cpp",
+      "Source/**.inl",
       "Resources/**.h",
       "Resources/**.rc",
       "Resources/**.ico"

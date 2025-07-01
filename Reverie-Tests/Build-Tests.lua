@@ -1,19 +1,28 @@
-project "Reverie-Game"
-   kind "WindowedApp"
+project "Reverie-Tests"
+   filter { "configurations:Debug or configurations:Release" }
+      kind "ConsoleApp"
+      defines { "UNIT_TESTS_ENABLED" }
+   filter "configurations:Dist"  
+      kind "None"
+   filter {}
+
    language "C++"
    cppdialect "C++20"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
    files {
-     "Source/**.h",
-     "Source/**.cpp",
-     "../Reverie-Core/Resources/**.rc"
+     "External/**.hpp",
+     "External/**.h",
+     "External/**.cpp",
+     "Tests/**.h",
+     "Tests/**.cpp"
     }
 
    includedirs
    {
-      "Source",
+      "External",
+      "Tests",
       "../Reverie-Core/Source/Public"
    }
 
